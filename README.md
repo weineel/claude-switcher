@@ -1,17 +1,17 @@
 # Claude Proxy Checker
 
-## 简介
+## Overview
 
-`claude-proxy-checker` 是一个帮助检查 IP 位置和代理设置的脚本，专为启动 Claude AI 服务而设计。
+`claude-proxy-checker` is a script designed to help check IP location and proxy settings, specifically for launching Claude AI services.
 
-## 功能特点
+## Features
 
-- 自动检测当前 IP 地理位置
-- 支持自动设置代理
-- 检查是否可以访问 Claude AI 服务
-- 交互式代理配置
+- Automatically detect current IP geolocation
+- Support for automatic proxy configuration
+- Check accessibility of Claude AI services
+- Interactive proxy configuration
 
-## 安装方法
+## Installation
 
 ### macOS/Linux
 
@@ -19,20 +19,20 @@
 curl -sSL https://raw.githubusercontent.com/fiftyk/claude-proxy-checker/main/install.sh | bash
 ```
 
-## 使用方法
+## Usage
 
-直接运行 `claude-proxy-checker` 命令
+Simply run the `claude-proxy-checker` command
 
-## 系统要求
+## System Requirements
 
 - bash
 - curl
-- 网络连接
+- Network connection
 
-## 许可证
+## License
 
 MIT License
 
-## 贡献
+## Contributions
 
-欢迎提交 issues 和 pull requests
+Issues and pull requests are welcome
