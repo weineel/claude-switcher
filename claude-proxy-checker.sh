@@ -141,7 +141,15 @@ start_claude_anyrouter() {
     token=$(read_anthropic_token)
     
     if [ -z "$token" ]; then
-        echo -e "\n${YELLOW}请输入 Anthropic Auth Token（anyrouter）:${NC}"
+        echo -e "\n${YELLOW}===============================================${NC}"
+        echo -e "${YELLOW}需要获取 Anthropic Auth Token (anyrouter)${NC}"
+        echo -e "${YELLOW}===============================================${NC}"
+        echo -e "\n${GREEN}如何获取Token:${NC}"
+        echo -e "1. 打开链接: ${YELLOW}https://anyrouter.top/register?aff=eg0D${NC}"
+        echo -e "2. 注册账户并登录"
+        echo -e "3. 在用户面板中找到 API Token"
+        echo -e "4. 复制Token到此处"
+        echo -e "\n${YELLOW}请输入 Anthropic Auth Token:${NC}"
         read -s -r token
         echo
         
