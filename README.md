@@ -26,6 +26,18 @@
 - 无需复杂的代理设置
 - 需要anyrouter Token (免费注册获取)
 
+## 安装方法
+
+### 一键安装 (推荐)
+```bash
+curl -sSL https://raw.githubusercontent.com/fiftyk/claude-proxy-checker/main/install.sh | bash
+```
+
+### 手动安装
+1. 下载脚本文件
+2. 赋予执行权限: `chmod +x claude-proxy-checker.sh`
+3. 运行脚本: `./claude-proxy-checker.sh`
+
 ## 使用方法
 
 ### 基本使用
