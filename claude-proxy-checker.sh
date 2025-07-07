@@ -178,91 +178,97 @@ main() {
     # 保存原始代理设置
     save_original_proxy
     
-    # 获取IP位置信息
-    get_ip_location
-    local location_status=$?
+    # 首先询问用户选择启动方式
+    echo -e "\n${YELLOW}请选择Claude启动方式:${NC}"
+    echo "1) 启动 Claude"
+    echo "2) 启动 Claude（anyrouter）"
+    echo "3) 退出"
+    read -r -p "请选择 [1-3] (默认: 1): " choice
     
-    # 如果不在美国，尝试设置代理
-    if [ $location_status -eq 1 ]; then
-        echo -e "\n${YELLOW}当前IP位置不在美国，尝试设置代理...${NC}"
-        
-        # 询问用户是否要设置自定义代理
-        echo -e "\n${YELLOW}请选择代理设置方式:${NC}"
-        echo "1) 使用默认代理 ($DEFAULT_PROXY)"
-        echo "2) 输入自定义代理"
-        echo "3) 启动 Claude（anyrouter）"
-        echo "4) 退出程序"
-        read -r -p "请选择 [1-4] (默认: 1): " choice
-        
-        case ${choice:-1} in
-            1)
-                set_proxy
-                ;;
-            2)
-                echo -e "\n请输入代理地址 (格式: http://地址:端口):"
-                read -r custom_proxy
-                set_proxy "$custom_proxy"
-                ;;
-            3)
-                start_claude_anyrouter
-                restore_original_proxy
-                exit 0
-                ;;
-            4)
-                echo -e "${YELLOW}程序已退出${NC}"
-                restore_original_proxy
-                exit 0
-                ;;
-            *)
-                echo -e "${RED}无效的选择${NC}"
-                restore_original_proxy
-                exit 1
-                ;;
-        esac
-        
-        # 检查代理是否可用
-        if ! check_proxy; then
-            echo -e "${RED}代理设置失败，程序退出${NC}"
+    case ${choice:-1} in
+        1)
+            # 选择启动普通Claude，需要检查IP位置
+            echo -e "\n${YELLOW}正在检查IP地理位置...${NC}"
+            get_ip_location
+            local location_status=$?
+            
+            if [ $location_status -eq 0 ]; then
+                echo -e "\n${GREEN}当前IP位置在美国，可以直接启动Claude${NC}"
+                start_claude
+            elif [ $location_status -eq 1 ]; then
+                echo -e "\n${YELLOW}当前IP位置不在美国，需要设置代理...${NC}"
+                
+                # 询问用户代理设置方式
+                echo -e "\n${YELLOW}请选择代理设置方式:${NC}"
+                echo "1) 使用默认代理 ($DEFAULT_PROXY)"
+                echo "2) 输入自定义代理"
+                echo "3) 改为启动 Claude（anyrouter）"
+                echo "4) 退出程序"
+                read -r -p "请选择 [1-4] (默认: 1): " proxy_choice
+                
+                case ${proxy_choice:-1} in
+                    1)
+                        set_proxy
+                        ;;
+                    2)
+                        echo -e "\n请输入代理地址 (格式: http://地址:端口):"
+                        read -r custom_proxy
+                        set_proxy "$custom_proxy"
+                        ;;
+                    3)
+                        start_claude_anyrouter
+                        restore_original_proxy
+                        exit 0
+                        ;;
+                    4)
+                        echo -e "${YELLOW}程序已退出${NC}"
+                        restore_original_proxy
+                        exit 0
+                        ;;
+                    *)
+                        echo -e "${RED}无效的选择${NC}"
+                        restore_original_proxy
+                        exit 1
+                        ;;
+                esac
+                
+                # 检查代理是否可用
+                if ! check_proxy; then
+                    echo -e "${RED}代理设置失败，程序退出${NC}"
+                    restore_original_proxy
+                    exit 1
+                fi
+                
+                # 使用代理后再次检查位置
+                echo -e "\n${YELLOW}正在使用代理重新检查位置...${NC}"
+                get_ip_location
+                location_status=$?
+                
+                if [ $location_status -eq 0 ]; then
+                    echo -e "\n${GREEN}代理设置成功，IP位置已在美国${NC}"
+                    start_claude
+                else
+                    echo -e "\n${RED}代理设置后IP位置仍不在美国，建议使用anyrouter${NC}"
+                fi
+            else
+                echo -e "\n${RED}获取位置信息失败，建议使用anyrouter${NC}"
+            fi
+            ;;
+        2)
+            # 选择启动anyrouter，无需检查IP位置
+            start_claude_anyrouter
+            ;;
+        3)
+            echo -e "${YELLOW}程序已退出${NC}"
+            restore_original_proxy
+            exit 0
+            ;;
+        *)
+            echo -e "${RED}无效的选择${NC}"
             restore_original_proxy
             exit 1
-        fi
-        
-        # 使用代理后再次检查位置
-        echo -e "\n${YELLOW}正在使用代理重新检查位置...${NC}"
-        get_ip_location
-        location_status=$?
-    fi
-    
-    # 根据最终的位置状态处理
-    if [ $location_status -eq 0 ]; then
-        echo -e "\n${GREEN}检测到当前IP位置在美国${NC}"
-        
-        # 询问是否启动Claude
-        echo -e "\n${YELLOW}请选择操作:${NC}"
-        echo "1) 启动 Claude（anyrouter）"
-        echo "2) 启动 Claude"
-        echo "3) 退出"
-        read -r -p "请选择 [1-3] (默认: 1): " choice
-        
-        case ${choice:-1} in
-            1)
-                start_claude_anyrouter
-                ;;
-            2)
-                start_claude
-                ;;
-            3)
-                echo -e "${YELLOW}已取消启动Claude${NC}"
-                ;;
-            *)
-                echo -e "${RED}无效的选择${NC}"
-                ;;
-        esac
-    elif [ $location_status -eq 1 ]; then
-        echo -e "\n${RED}即使使用代理，IP位置仍然不在美国${NC}"
-    else
-        echo -e "\n${RED}获取位置信息失败${NC}"
-    fi
+            ;;
+    esac
     
     # 恢复原始代理设置
     restore_original_proxy
