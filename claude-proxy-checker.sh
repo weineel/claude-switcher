@@ -11,6 +11,9 @@ DEFAULT_PROXY="http://127.0.0.1:7890"
 ORIGINAL_HTTP_PROXY=""
 ORIGINAL_HTTPS_PROXY=""
 
+# 配置文件路径
+CONFIG_FILE="$HOME/.claude_proxy_config"
+
 # 检查必要的命令是否存在
 check_dependencies() {
     if ! command -v curl &> /dev/null; then
@@ -114,6 +117,51 @@ get_ip_location() {
     fi
 }
 
+# 保存 Anthropic Auth Token
+save_anthropic_token() {
+    local token="$1"
+    echo "ANTHROPIC_AUTH_TOKEN=$token" > "$CONFIG_FILE"
+    chmod 600 "$CONFIG_FILE"
+    echo -e "${GREEN}Token 已成功保存${NC}"
+}
+
+# 读取 Anthropic Auth Token
+read_anthropic_token() {
+    if [ -f "$CONFIG_FILE" ]; then
+        source "$CONFIG_FILE"
+        echo "$ANTHROPIC_AUTH_TOKEN"
+    else
+        echo ""
+    fi
+}
+
+# 启动 Claude（anyrouter）
+start_claude_anyrouter() {
+    local token
+    token=$(read_anthropic_token)
+    
+    if [ -z "$token" ]; then
+        echo -e "\n${YELLOW}请输入 Anthropic Auth Token（anyrouter）:${NC}"
+        read -r token
+        
+        if [ -z "$token" ]; then
+            echo -e "${RED}错误：Token 不能为空${NC}"
+            return 1
+        fi
+        
+        save_anthropic_token "$token"
+    else
+        echo -e "\n${GREEN}检测到已保存的 Anthropic Auth Token${NC}"
+    fi
+    
+    # 导出 Token 和 Base URL
+    export ANTHROPIC_AUTH_TOKEN="$token"
+    export ANTHROPIC_BASE_URL="https://anyrouter.top"
+    
+    echo -e "\n${GREEN}正在启动 Claude（anyrouter）...${NC}"
+    claude
+}
+
 # 启动Claude的函数
 start_claude() {
     echo -e "\n${GREEN}正在启动Claude...${NC}"
@@ -141,8 +189,9 @@ main() {
         echo -e "\n${YELLOW}请选择代理设置方式:${NC}"
         echo "1) 使用默认代理 ($DEFAULT_PROXY)"
         echo "2) 输入自定义代理"
-        echo "3) 退出程序"
-        read -r -p "请选择 [1-3] (默认: 1): " choice
+        echo "3) 启动 Claude（anyrouter）"
+        echo "4) 退出程序"
+        read -r -p "请选择 [1-4] (默认: 1): " choice
         
         case ${choice:-1} in
             1)
@@ -154,6 +203,11 @@ main() {
                 set_proxy "$custom_proxy"
                 ;;
             3)
+                start_claude_anyrouter
+                restore_original_proxy
+                exit 0
+                ;;
+            4)
                 echo -e "${YELLOW}程序已退出${NC}"
                 restore_original_proxy
                 exit 0
@@ -184,15 +238,19 @@ main() {
         
         # 询问是否启动Claude
         echo -e "\n${YELLOW}请选择操作:${NC}"
-        echo "1) 启动Claude"
-        echo "2) 退出"
-        read -r -p "请选择 [1-2] (默认: 1): " choice
+        echo "1) 启动 Claude（anyrouter）"
+        echo "2) 启动 Claude"
+        echo "3) 退出"
+        read -r -p "请选择 [1-3] (默认: 1): " choice
         
         case ${choice:-1} in
             1)
-                start_claude
+                start_claude_anyrouter
                 ;;
             2)
+                start_claude
+                ;;
+            3)
                 echo -e "${YELLOW}已取消启动Claude${NC}"
                 ;;
             *)
