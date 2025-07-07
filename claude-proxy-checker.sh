@@ -142,7 +142,8 @@ start_claude_anyrouter() {
     
     if [ -z "$token" ]; then
         echo -e "\n${YELLOW}请输入 Anthropic Auth Token（anyrouter）:${NC}"
-        read -r token
+        read -s -r token
+        echo
         
         if [ -z "$token" ]; then
             echo -e "${RED}错误：Token 不能为空${NC}"
