@@ -226,10 +226,10 @@ handle_existing_profile() {
     echo "  4 返回主菜单"
     echo "  5 退出"
     
-    echo -n -e "\n${YELLOW}请选择 [1-5]: ${NC}"
+    echo -n -e "\n${YELLOW}请选择 [1-5] (默认: 1): ${NC}"
     read -r action
     
-    case "$action" in
+    case "${action:-1}" in
         1)
             run_claude_with_profile "$profile_name"
             ;;
@@ -420,10 +420,10 @@ EOF
     echo "  2 返回主菜单"
     echo "  3 退出"
     
-    echo -n -e "\n${YELLOW}请选择 [1-3]: ${NC}"
+    echo -n -e "\n${YELLOW}请选择 [1-3] (默认: 1): ${NC}"
     read -r next_action
     
-    case "$next_action" in
+    case "${next_action:-1}" in
         1)
             set_active_profile "$profile_name"
             run_claude_with_profile "$profile_name"
