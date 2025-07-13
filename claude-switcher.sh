@@ -371,14 +371,9 @@ create_new_profile() {
     read -r base_url
     
     # 3. 输入 ANTHROPIC_AUTH_TOKEN
-    echo -n -e "${YELLOW}请输入 ANTHROPIC_AUTH_TOKEN: ${NC}"
+    echo -n -e "${YELLOW}请输入 ANTHROPIC_AUTH_TOKEN (留空跳过): ${NC}"
     read -s auth_token
     echo
-    
-    if [ -z "$auth_token" ]; then
-        echo_error "Auth Token 不能为空"
-        exit 1
-    fi
     
     # 4. 输入代理设置
     echo -n -e "${YELLOW}请输入代理地址 (格式: http://host:port，留空不使用代理): ${NC}"
