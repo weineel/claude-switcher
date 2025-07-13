@@ -4,6 +4,6 @@
 # 编辑器
 .vscode/
 .idea/
-
+.claude/
 # 日志文件
 *.log
