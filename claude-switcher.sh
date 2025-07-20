@@ -76,7 +76,14 @@ get_exit_ip() {
     ip_info=$(curl -s "http://ip-api.com/json/?fields=status,message,country,countryCode,regionName,city,query" 2>/dev/null)
     
     if [ -z "$ip_info" ]; then
-        echo_warning "无法获取IP信息"
+        echo_warning "无法获取IP信息，可能影响Claude API访问"
+        echo -n -e "${YELLOW}是否仍要继续启动？[y/N]: ${NC}"
+        read -r continue_choice
+        
+        if [[ ! "$continue_choice" =~ ^[yY] ]]; then
+            echo_info "已取消启动"
+            return 1
+        fi
         return 0
     fi
     
@@ -84,7 +91,14 @@ get_exit_ip() {
     status=$(echo "$ip_info" | sed -n 's/.*"status":"\([^"]*\)".*/\1/p')
     
     if [ "$status" = "fail" ]; then
-        echo_warning "IP查询失败"
+        echo_warning "IP查询失败，可能影响Claude API访问"
+        echo -n -e "${YELLOW}是否仍要继续启动？[y/N]: ${NC}"
+        read -r continue_choice
+        
+        if [[ ! "$continue_choice" =~ ^[yY] ]]; then
+            echo_info "已取消启动"
+            return 1
+        fi
         return 0
     fi
     
